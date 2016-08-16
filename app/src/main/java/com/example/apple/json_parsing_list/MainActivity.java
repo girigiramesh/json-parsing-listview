@@ -1,5 +1,6 @@
 package com.example.apple.json_parsing_list;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -40,13 +41,19 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final String URL_TO_HIT = "http://jsonparsing.parseapp.com/jsonData/moviesData.txt";
+//    private final String URL_TO_HIT = "http://jsonparsing.parseapp.com/jsonData/moviesData.txt";
     private ListView lvmovies;
+    private TextView tvData;
+    private ProgressDialog dialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        dialog = new ProgressDialog(this);
+        dialog.setIndeterminate(true);
+        dialog.setCancelable(false);
+        dialog.setMessage("Loading.please wait...");
         // Create default options which will be used for every
         //  displayImage(...) call if no options will be passed to this method
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
@@ -59,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         ImageLoader.getInstance().init(config); // Do it on Application start
 
         lvmovies = (ListView) findViewById(R.id.lvmovies);
-        new AsynchttpTask().execute(URL_TO_HIT);
+//        new AsynchttpTask().execute(URL_TO_HIT);
 
     }
 
@@ -68,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            dialog.show();
         }
 
         @Override
@@ -142,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(List<MovieModel> result) {
             super.onPostExecute(result);
+            dialog.dismiss();
             MovieAdapter adapter = new MovieAdapter(getApplicationContext(),R.layout.row, result);
             lvmovies.setAdapter(adapter);
         }
@@ -248,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_refresh){
-            new AsynchttpTask().execute(URL_TO_HIT);
+            new AsynchttpTask().execute("http://jsonparsing.parseapp.com/jsonData/moviesData.txt");
             return true;
         }
         return super.onOptionsItemSelected(item);
