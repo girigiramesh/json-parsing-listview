@@ -40,7 +40,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final String URL_TO_HIT = "http://jsonparsing.parseapp.com/jsonData/moviesData.txt";
+//    private final String URL_TO_HIT = "http://jsonparsing.parseapp.com/jsonData/moviesData.txt";
     private ListView lvmovies;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,11 +59,11 @@ public class MainActivity extends AppCompatActivity {
         ImageLoader.getInstance().init(config); // Do it on Application start
 
         lvmovies = (ListView) findViewById(R.id.lvmovies);
-        new asynchttpTask().execute(URL_TO_HIT);
+//        new AsynchttpTask().execute(URL_TO_HIT);
 
     }
 
-    public class asynchttpTask extends AsyncTask<String,String,List<MovieModel>> {
+    public class AsynchttpTask extends AsyncTask<String,String,List<MovieModel>> {
 
         @Override
         protected void onPreExecute() {
@@ -79,8 +79,8 @@ public class MainActivity extends AppCompatActivity {
                 httpURLConnection = (HttpURLConnection) url.openConnection();
                 httpURLConnection.connect();
 
-                InputStream steam = httpURLConnection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(steam));
+                InputStream stream = httpURLConnection.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(stream));
 
                 StringBuffer buffer = new StringBuffer();
                 String line = "";
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                     movieModel.setStory(jsonObject.getString("story"));
 
                     List<MovieModel.Cast> castList = new ArrayList<>();
-                    for(int j=0; j<jsonObject.getJSONArray("cast").length(); j++){
+                    for(int j = 0; j < jsonObject.getJSONArray("cast").length(); j++){
                         MovieModel.Cast cast = new MovieModel.Cast();
                         cast.setName(jsonObject.getJSONArray("cast").getJSONObject(j).getString("name"));
                         castList.add(cast);
@@ -114,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
                     movieModel.setCastList(castList);
                     // adding the JSON object in the list
                     movieModelList.add(movieModel);
-
 
                 }
                 return movieModelList;
@@ -149,8 +148,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     public class MovieAdapter extends ArrayAdapter{
 
         private List<MovieModel> movieModelList;
@@ -165,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-
 
             ViewHolder holder = null;
 
@@ -252,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_refresh){
-            new asynchttpTask().execute(URL_TO_HIT);
+            new AsynchttpTask().execute("http://jsonparsing.parseapp.com/jsonData/moviesData.txt");
             return true;
         }
         return super.onOptionsItemSelected(item);

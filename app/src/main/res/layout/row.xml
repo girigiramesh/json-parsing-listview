@@ -21,8 +21,7 @@
             <ImageView
                 android:id="@+id/ivIcon"
                 android:layout_width="120dp"
-                android:layout_height="160dp"
-                android:src="@drawable/images"/>
+                android:layout_height="160dp"/>
             <ProgressBar
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
