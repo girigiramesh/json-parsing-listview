@@ -40,7 +40,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-//    private final String URL_TO_HIT = "http://jsonparsing.parseapp.com/jsonData/moviesData.txt";
+    private final String URL_TO_HIT = "http://jsonparsing.parseapp.com/jsonData/moviesData.txt";
     private ListView lvmovies;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         ImageLoader.getInstance().init(config); // Do it on Application start
 
         lvmovies = (ListView) findViewById(R.id.lvmovies);
-//        new AsynchttpTask().execute(URL_TO_HIT);
+        new AsynchttpTask().execute(URL_TO_HIT);
 
     }
 
@@ -79,8 +79,8 @@ public class MainActivity extends AppCompatActivity {
                 httpURLConnection = (HttpURLConnection) url.openConnection();
                 httpURLConnection.connect();
 
-                InputStream stream = httpURLConnection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(stream));
+                InputStream steam = httpURLConnection.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(steam));
 
                 StringBuffer buffer = new StringBuffer();
                 String line = "";
@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_refresh){
-            new AsynchttpTask().execute("http://jsonparsing.parseapp.com/jsonData/moviesData.txt");
+            new AsynchttpTask().execute(URL_TO_HIT);
             return true;
         }
         return super.onOptionsItemSelected(item);
