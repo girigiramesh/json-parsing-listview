@@ -75,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public class AsynchttpTask extends AsyncTask<String,String,List<MovieModel>> {
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
