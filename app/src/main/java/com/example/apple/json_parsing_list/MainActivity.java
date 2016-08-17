@@ -2,6 +2,7 @@ package com.example.apple.json_parsing_list;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -11,14 +12,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.apple.json_parsing_list.Models.MovieModel;
+import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -41,7 +45,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-//    private final String URL_TO_HIT = "http://jsonparsing.parseapp.com/jsonData/moviesData.txt";
+    private final String URL_TO_HIT = "http://jsonparsing.parseapp.com/jsonData/moviesData.txt";
     private ListView lvmovies;
     private TextView tvData;
     private ProgressDialog dialog;
@@ -66,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         ImageLoader.getInstance().init(config); // Do it on Application start
 
         lvmovies = (ListView) findViewById(R.id.lvmovies);
-//        new AsynchttpTask().execute(URL_TO_HIT);
+        new AsynchttpTask().execute(URL_TO_HIT);
 
     }
 
@@ -100,26 +104,33 @@ public class MainActivity extends AppCompatActivity {
                 JSONArray jsonArray = jsonRootObject.optJSONArray("movies");
 
                 List<MovieModel> movieModelList = new ArrayList<>();
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    MovieModel movieModel = new MovieModel();
-                    movieModel.setMovie(jsonObject.getString("movie"));
-                    movieModel.setYear(jsonObject.getInt("year"));
-                    movieModel.setRating((float) jsonObject.getDouble("rating"));
-                    movieModel.setDirector(jsonObject.getString("director"));
-
-                    movieModel.setDuration(jsonObject.getString("duration"));
-                    movieModel.setTagline(jsonObject.getString("tagline"));
-                    movieModel.setImage(jsonObject.getString("image"));
-                    movieModel.setStory(jsonObject.getString("story"));
-
-                    List<MovieModel.Cast> castList = new ArrayList<>();
-                    for(int j = 0; j < jsonObject.getJSONArray("cast").length(); j++){
-                        MovieModel.Cast cast = new MovieModel.Cast();
-                        cast.setName(jsonObject.getJSONArray("cast").getJSONObject(j).getString("name"));
-                        castList.add(cast);
-                    }
-                    movieModel.setCastList(castList);
+                Gson gson = new Gson();
+                for(int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject finalObject = jsonArray.getJSONObject(i);
+                    /**
+                     * below single line of code from Gson saves you from writing the json parsing yourself which is commented below
+                     */
+                    MovieModel movieModel = gson.fromJson(finalObject.toString(), MovieModel.class);
+//                for (int i = 0; i < jsonArray.length(); i++) {
+//                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+//                    MovieModel movieModel = new MovieModel();
+//                    movieModel.setMovie(jsonObject.getString("movie"));
+//                    movieModel.setYear(jsonObject.getInt("year"));
+//                    movieModel.setRating((float) jsonObject.getDouble("rating"));
+//                    movieModel.setDirector(jsonObject.getString("director"));
+//
+//                    movieModel.setDuration(jsonObject.getString("duration"));
+//                    movieModel.setTagline(jsonObject.getString("tagline"));
+//                    movieModel.setImage(jsonObject.getString("image"));
+//                    movieModel.setStory(jsonObject.getString("story"));
+//
+//                    List<MovieModel.Cast> castList = new ArrayList<>();
+//                    for(int j = 0; j < jsonObject.getJSONArray("cast").length(); j++){
+//                        MovieModel.Cast cast = new MovieModel.Cast();
+//                        cast.setName(jsonObject.getJSONArray("cast").getJSONObject(j).getString("name"));
+//                        castList.add(cast);
+//                    }
+//                    movieModel.setCastList(castList);
                     // adding the JSON object in the list
                     movieModelList.add(movieModel);
 
@@ -148,11 +159,24 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
         @Override
-        protected void onPostExecute(List<MovieModel> result) {
+        protected void onPostExecute(final List<MovieModel> result) {
             super.onPostExecute(result);
             dialog.dismiss();
+            if(result != null) {
             MovieAdapter adapter = new MovieAdapter(getApplicationContext(),R.layout.row, result);
             lvmovies.setAdapter(adapter);
+                lvmovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        MovieModel movieModel = result.get(position);
+                        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+                        intent.putExtra("movieModel", new Gson().toJson(movieModel));
+                        startActivity(intent);
+                    }
+                });
+            } else {
+                Toast.makeText(getApplicationContext(), "Not able to fetch data from server, please check url.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -257,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_refresh){
-            new AsynchttpTask().execute("http://jsonparsing.parseapp.com/jsonData/moviesData.txt");
+            new AsynchttpTask().execute(URL_TO_HIT);
             return true;
         }
         return super.onOptionsItemSelected(item);
